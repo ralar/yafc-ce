@@ -15,8 +15,10 @@ namespace YAFC {
         public readonly ImGui bodyContent;
         private float contentWidth, headerHeight, contentHeight;
         private SearchQuery searchQuery;
+        protected bool shouldSetScroll = false;
         protected abstract void BuildHeader(ImGui gui);
         protected abstract void BuildContent(ImGui gui);
+        public abstract void SetScroll();
 
         public virtual void Rebuild(bool visualOnly = false) {
             headerContent.Rebuild();
@@ -67,6 +69,11 @@ namespace YAFC {
 
             // use bottom padding to enable scrolling past the last row
             base.Build(gui, visibleSize.Y - headerHeight, true);
+            if (shouldSetScroll) {
+                shouldSetScroll = false;
+                SetScroll();
+                Build(gui, visibleSize);
+            }
         }
 
         protected override Vector2 MeasureContent(Rect rect, ImGui gui) {
@@ -112,6 +119,13 @@ namespace YAFC {
         }
 
         public override void SetModel(ProjectPage page) {
+            if (page == null && projectPage != null) {
+                Console.WriteLine("Saving scroll {0}", scroll);
+                projectPage.savedScroll = scroll;
+            }
+            if (page != null && projectPage == null) {
+                shouldSetScroll = true;
+            }
             if (model != null) {
                 projectPage.contentChanged -= ModelContentsChanged;
             }
@@ -123,6 +137,11 @@ namespace YAFC {
                 projectPage.contentChanged += ModelContentsChanged;
                 ModelContentsChanged(false);
             }
+        }
+
+        public override void SetScroll() {
+            Console.WriteLine("Writing saved scroll {0}", projectPage.savedScroll);
+            this.scroll = projectPage.savedScroll;
         }
 
         public override void BuildPageTooltip(ImGui gui, ProjectPageContents contents) {
