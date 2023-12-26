@@ -6,6 +6,7 @@ using SDL2;
 using YAFC.Blueprints;
 using YAFC.Model;
 using YAFC.UI;
+using YAFC.Workspace.ProductionTable;
 
 namespace YAFC {
     public class ProductionTableView : ProjectPageView<ProductionTable> {
@@ -108,17 +109,17 @@ namespace YAFC {
                     gui.ShowDropDown(delegate (ImGui imgui) {
                         view.DrawRecipeTagSelect(imgui, recipe);
 
+                        if (recipe.subgroup != null && view.hasActiveQuery && imgui.BuildButton("Focus search") && imgui.CloseDropdown()) {
+                            recipe.shouldFocusOnEmptySearch = true;
+                            gui.PropagateMessage(new SearchCancelMessage("user wants to focus item"));
+                        }
+
                         if (recipe.subgroup == null && imgui.BuildButton("Create nested table") && imgui.CloseDropdown()) {
                             recipe.RecordUndo().subgroup = new ProductionTable(recipe);
                         }
 
                         if (recipe.subgroup != null && imgui.BuildButton("Add nested desired product") && imgui.CloseDropdown()) {
                             view.AddDesiredProductAtLevel(recipe.subgroup);
-                        }
-
-                        if (recipe.subgroup != null && view.hasActiveQuery && imgui.BuildButton("Focus search") && imgui.CloseDropdown()) {
-                            recipe.shouldFocusOnEmptySearch = true;
-                            gui.PropagateMessage(new SearchCancelMessage("user wants to focus item"));
                         }
 
                         if (recipe.subgroup != null && imgui.BuildButton("Add raw recipe") && imgui.CloseDropdown()) {
