@@ -3,6 +3,7 @@ using System.Numerics;
 using SDL2;
 using YAFC.Model;
 using YAFC.UI;
+using YAFC.Workspace.ProductionTable;
 
 namespace YAFC {
     public abstract class ProjectPageView : Scrollable {
@@ -15,10 +16,15 @@ namespace YAFC {
         public readonly ImGui bodyContent;
         private float contentWidth, headerHeight, contentHeight;
         private SearchQuery searchQuery;
-        protected bool shouldSetScroll = false;
+        private bool addedHandler;
+        protected bool shouldSetScroll = false, hasActiveQuery = false;
+        protected float targetScroll = 0f;
         protected abstract void BuildHeader(ImGui gui);
         protected abstract void BuildContent(ImGui gui);
-        public abstract void SetScroll();
+        public virtual void SetScroll() {
+            this.scroll = targetScroll;
+            targetScroll = 0f;
+        }
 
         public virtual void Rebuild(bool visualOnly = false) {
             headerContent.Rebuild();
@@ -47,6 +53,14 @@ namespace YAFC {
         }
 
         public void Build(ImGui gui, Vector2 visibleSize) {
+            if (!addedHandler) {
+                addedHandler = true;
+                gui.AddMessageHandler<SetScrollPositionMessage>(msg => {
+                    this.targetScroll = msg.Top;
+                    this.shouldSetScroll = true;
+                    return true;
+                });
+            }
             if (gui.isBuilding) {
                 gui.spacing = 0f;
                 var position = gui.AllocateRect(0f, 0f, 0f).Position;
@@ -142,6 +156,9 @@ namespace YAFC {
         public override void SetScroll() {
             Console.WriteLine("Writing saved scroll {0}", projectPage.savedScroll);
             this.scroll = projectPage.savedScroll;
+            if (targetScroll == 0)
+                this.targetScroll = projectPage.savedScroll;
+            base.SetScroll();
         }
 
         public override void BuildPageTooltip(ImGui gui, ProjectPageContents contents) {

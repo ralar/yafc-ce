@@ -198,6 +198,13 @@ namespace YAFC {
         }
 
         protected override void BuildContent(ImGui gui) {
+            if (!addedHandlerContent) {
+                addedHandlerContent = true;
+                gui.AddMessageHandler<SearchCancelMessage>(msg => {
+                    SetSearch(default);
+                    return true;
+                });
+            }
             if (pseudoScreens.Count > 0) {
                 var top = pseudoScreens[0];
                 if (gui.isBuilding) {
@@ -442,6 +449,7 @@ namespace YAFC {
         }
 
         private bool saveConfirmationActive;
+        private bool addedHandlerContent;
         public override bool preventQuit => true;
 
         protected override async void Close() {
@@ -456,7 +464,6 @@ namespace YAFC {
             Instance = null;
             base.Close();
         }
-
         private async Task<bool> ConfirmUnsavedChanges() {
             string unsavedCount = "You have " + project.unsavedChangesCount + " unsaved changes";
             if (!string.IsNullOrEmpty(project.attachedFileName)) {

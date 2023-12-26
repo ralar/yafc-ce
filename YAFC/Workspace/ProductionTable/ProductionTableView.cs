@@ -116,6 +116,11 @@ namespace YAFC {
                             view.AddDesiredProductAtLevel(recipe.subgroup);
                         }
 
+                        if (recipe.subgroup != null && view.hasActiveQuery && imgui.BuildButton("Focus search") && imgui.CloseDropdown()) {
+                            recipe.shouldFocusOnEmptySearch = true;
+                            gui.PropagateMessage(new SearchCancelMessage("user wants to focus item"));
+                        }
+
                         if (recipe.subgroup != null && imgui.BuildButton("Add raw recipe") && imgui.CloseDropdown()) {
                             SelectMultiObjectPanel.Select(Database.recipes.all, "Select raw recipe", r => view.AddRecipe(recipe.subgroup, r), checkMark: r => recipe.subgroup.recipes.Any(rr => rr.recipe == r));
                         }
@@ -816,6 +821,7 @@ goodsHaveNoProduction:;
 
         public override void SetSearchQuery(SearchQuery query) {
             _ = model.Search(query);
+            this.hasActiveQuery = !string.IsNullOrWhiteSpace(query.query);
             bodyContent.Rebuild();
         }
 

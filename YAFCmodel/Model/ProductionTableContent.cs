@@ -233,6 +233,7 @@ namespace YAFC.Model {
         public bool isOverviewMode => subgroup != null && !subgroup.expanded;
         public float buildingCount => (float)recipesPerSecond * parameters.recipeTime;
         public bool visible { get; internal set; } = true;
+        public bool shouldFocusOnEmptySearch { get; set; }
 
         public RecipeRow(ProductionTable owner, Recipe recipe) : base(owner) {
             this.recipe = recipe ?? throw new ArgumentNullException(nameof(recipe), "Recipe does not exist");
