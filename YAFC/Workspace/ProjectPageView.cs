@@ -155,7 +155,6 @@ namespace YAFC {
 
         public override void SetScroll() {
             Console.WriteLine("Writing saved scroll {0}", projectPage.savedScroll);
-            this.scroll = projectPage.savedScroll;
             if (targetScroll == 0)
                 this.targetScroll = projectPage.savedScroll;
             base.SetScroll();

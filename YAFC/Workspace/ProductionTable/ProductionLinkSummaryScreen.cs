@@ -36,9 +36,27 @@ namespace YAFC {
         }
 
         private void BuildFlow(ImGui gui, List<(RecipeRow row, float flow)> list, float total) {
+            ProductionLink shouldShow = null;
+            bool shouldClose = false;
             gui.spacing = 0f;
             foreach (var (row, flow) in list) {
-                _ = gui.BuildFactorioObjectButtonWithText(row.recipe, DataUtils.FormatAmount(flow, link.goods.flowUnitOfMeasure));
+                if (gui.BuildFactorioObjectButtonWithText(row.recipe, DataUtils.FormatAmount(flow, link.goods.flowUnitOfMeasure))) {
+                    if (Object.ReferenceEquals(list, input)) {
+                        Console.WriteLine("Producing {0}", row.recipe.name);
+                        row.shouldFocusOnEmptySearch = true;
+                        shouldClose = true;
+                    }
+                    else {
+                        Console.WriteLine("Consuming {0}", row.recipe.name);
+                        var good = row.recipe.mainProduct;
+                        foreach (var link in row.links.products) {
+                            if (link.goods.Equals(good)) {
+                                shouldShow = link;
+                                break;
+                            }
+                        }
+                    }
+                }
                 if (gui.isBuilding) {
                     var lastRect = gui.lastRect;
                     lastRect.Width *= (flow / total);
@@ -46,6 +64,12 @@ namespace YAFC {
                 }
             }
 
+            if (shouldShow != null) {
+                Instance.CalculateFlow(shouldShow);
+            }
+            if (shouldClose) {
+                Close();
+            }
         }
 
         private void CalculateFlow(ProductionLink link) {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using YAFC.Model;
 using YAFC.UI;
+using YAFC.Workspace.ProductionTable;
 
 namespace YAFC {
     public class FlatHierarchy<TRow, TGroup> where TRow : ModelObject<TGroup>, IGroupedElement<TGroup> where TGroup : ModelObject<ModelObject>, IElementGroup<TRow> {

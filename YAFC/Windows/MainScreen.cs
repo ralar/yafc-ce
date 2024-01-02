@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using SDL2;
 using YAFC.Model;
 using YAFC.UI;
+using YAFC.Workspace.ProductionTable;
 
 namespace YAFC {
     public class MainScreen : WindowMain, IKeyboardFocus, IProgress<(string, string)> {
